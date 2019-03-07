@@ -82,7 +82,8 @@ module Match
       app_identifiers.flatten!
 
       # Verify the App ID (as we don't want 'match' to fail at a later point)
-      if spaceship
+      # TODO: temporarily skipping profiles for mac, but think fastlane methodology expects app ids & profiles in general
+      if spaceship && params[:platform] != 'macos'
         app_identifiers.each do |app_identifier|
           spaceship.bundle_identifier_exists(username: params[:username], app_identifier: app_identifier)
         end
@@ -90,15 +91,17 @@ module Match
 
       # Certificate
       cert_id = fetch_certificate(params: params, working_directory: storage.working_directory)
-      spaceship.certificate_exists(username: params[:username], certificate_id: cert_id) if spaceship
+      spaceship.certificate_exists(username: params[:username], certificate_id: cert_id, mac: params[:platform] == 'macos') if spaceship
 
       # Provisioning Profiles
-      app_identifiers.each do |app_identifier|
-        loop do
-          break if fetch_provisioning_profile(params: params,
-                                      certificate_id: cert_id,
-                                      app_identifier: app_identifier,
-                                   working_directory: storage.working_directory)
+      if params[:platform] != 'macos'
+        app_identifiers.each do |app_identifier|
+          loop do
+            break if fetch_provisioning_profile(params: params,
+                                        certificate_id: cert_id,
+                                        app_identifier: app_identifier,
+                                    working_directory: storage.working_directory)
+          end
         end
       end
 

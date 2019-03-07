@@ -45,10 +45,8 @@ module Match
       UI.user_error!("Couldn't find bundle identifier '#{app_identifier}' for the user '#{username}'")
     end
 
-    def certificate_exists(username: nil, certificate_id: nil)
-      found = Spaceship.certificate.all.find do |cert|
-        cert.id == certificate_id
-      end
+    def certificate_exists(username: nil, certificate_id: nil, mac: false)
+      found = Spaceship.certificate.find(certificate_id, mac: mac)
       return if found
 
       UI.error("Certificate '#{certificate_id}' (stored in your storage) is not available on the Developer Portal")

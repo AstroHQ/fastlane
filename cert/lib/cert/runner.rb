@@ -151,6 +151,7 @@ module Cert
 
       # Use the signing request to create a new distribution certificate
       begin
+        UI.important("Creating cert for type: #{certificate_type}")
         certificate = certificate_type.create!(csr: csr)
       rescue => ex
         type_name = (Cert.config[:development] ? "Development" : "Distribution")

@@ -170,7 +170,7 @@ module Match
                                      default_value: "ios",
                                      verify_block: proc do |value|
                                        value = value.to_s
-                                       pt = %w(tvos ios)
+                                       pt = %w(tvos ios macos)
                                        UI.user_error!("Unsupported platform, must be: #{pt}") unless pt.include?(value)
                                      end),
         FastlaneCore::ConfigItem.new(key: :template_name,
