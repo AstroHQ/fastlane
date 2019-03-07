@@ -80,28 +80,25 @@ module Match
       # sometimes we get an array with arrays, this is a bug. To unblock people using match, I suggest we flatten!
       # then in the future address the root cause of https://github.com/fastlane/fastlane/issues/11324
       app_identifiers.flatten!
-
+      is_mac = params[:platform] == 'macos'
       # Verify the App ID (as we don't want 'match' to fail at a later point)
-      # TODO: temporarily skipping profiles for mac, but think fastlane methodology expects app ids & profiles in general
-      if spaceship && params[:platform] != 'macos'
+      if spaceship
         app_identifiers.each do |app_identifier|
-          spaceship.bundle_identifier_exists(username: params[:username], app_identifier: app_identifier)
+          spaceship.bundle_identifier_exists(username: params[:username], app_identifier: app_identifier, mac: is_mac)
         end
       end
 
       # Certificate
       cert_id = fetch_certificate(params: params, working_directory: storage.working_directory)
-      spaceship.certificate_exists(username: params[:username], certificate_id: cert_id, mac: params[:platform] == 'macos') if spaceship
+      spaceship.certificate_exists(username: params[:username], certificate_id: cert_id, mac: is_mac) if spaceship
 
       # Provisioning Profiles
-      if params[:platform] != 'macos'
-        app_identifiers.each do |app_identifier|
-          loop do
-            break if fetch_provisioning_profile(params: params,
-                                        certificate_id: cert_id,
-                                        app_identifier: app_identifier,
-                                    working_directory: storage.working_directory)
-          end
+      app_identifiers.each do |app_identifier|
+        loop do
+          break if fetch_provisioning_profile(params: params,
+                                      certificate_id: cert_id,
+                                      app_identifier: app_identifier,
+                                  working_directory: storage.working_directory)
         end
       end
 

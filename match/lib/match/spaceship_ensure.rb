@@ -28,8 +28,8 @@ module Match
       return Spaceship.client.team_id
     end
 
-    def bundle_identifier_exists(username: nil, app_identifier: nil)
-      found = Spaceship.app.find(app_identifier)
+    def bundle_identifier_exists(username: nil, app_identifier: nil, mac: false)
+      found = Spaceship.app.find(app_identifier, mac: mac)
       return if found
 
       require 'sigh/runner'
@@ -39,7 +39,7 @@ module Match
       })
       UI.error("An app with that bundle ID needs to exist in order to create a provisioning profile for it")
       UI.error("================================================================")
-      available_apps = Spaceship.app.all.collect { |a| "#{a.bundle_id} (#{a.name})" }
+      available_apps = Spaceship.app.all(mac: mac).collect { |a| "#{a.bundle_id} (#{a.name})" }
       UI.message("Available apps:\n- #{available_apps.join("\n- ")}")
       UI.error("Make sure to run `fastlane match` with the same user and team every time.")
       UI.user_error!("Couldn't find bundle identifier '#{app_identifier}' for the user '#{username}'")
